@@ -1,0 +1,56 @@
+services:
+    nginx:
+        build: requirements/nginx/.
+        container_name: nginx
+        ports:
+            - "8080:80"
+    wordpress:
+        build: requirements/wordpress/.
+        container_name: wp-php
+
+
+
+# services:
+#     nginx:
+#         build: requirements/nginx/.
+#         container_name: nginx
+#         ports:
+#             - "8080:80"
+#         depends_on:
+#             - wordpress
+#         networks:
+#             - inception_network
+#     wordpress:
+#         build: requirements/wordpress/.
+#         container_name: wordpress
+#         ports:
+#             - "8000:80" # Add this if WordPress requires a port mapping
+#         volumes:
+#             - ./srcs:/var/www/html
+#         environment:    # Add required WordPress environment variables
+#             WORDPRESS_DB_HOST: mariadb:3306
+#             WORDPRESS_DB_USER: wordpress_user
+#             WORDPRESS_DB_PASSWORD: wordpress_password
+#             WORDPRESS_DB_NAME: wordpress
+#         depends_on:
+#             - mariadb
+#         networks:
+#             - inception_network
+#     mariadb:
+#         build: requirements/mariadb/.
+#         container_name: mariadb
+#         environment:
+#             MYSQL_ROOT_PASSWORD: root_password
+#             MYSQL_DATABASE: wordpress
+#             MYSQL_USER: wordpress_user
+#             MYSQL_PASSWORD: wordpress_password
+#         volumes:
+#             - db_data:/var/lib/mysql
+#         networks:
+#             - inception_network
+
+# volumes:
+#     db_data:
+
+# networks:
+#     inception_network:
