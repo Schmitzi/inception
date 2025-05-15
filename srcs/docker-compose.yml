@@ -2,55 +2,53 @@ services:
     nginx:
         build: requirements/nginx/.
         container_name: nginx
+        env_file:
+            - ./.env
+        environment:
+            - DOMAIN_NAME=${DOMAIN_NAME}
         ports:
-            - "8080:80"
+            - "443:443"
+        depends_on:
+            - wordpress
+        networks:
+            - inception
+        volumes:
+            - ./requirements/volumes/wordpress:/var/www/html  # Share WordPress files with Nginx
+
     wordpress:
         build: requirements/wordpress/.
-        container_name: wp-php
+        container_name: wordpress
+        env_file:
+            - ./.env
+        depends_on:
+            - mariadb
+        # No direct port exposure needed for WordPress with PHP-FPM
+        environment:
+            - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
+            - WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
+            - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+            - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
+            - DOMAIN_NAME=${DOMAIN_NAME}
+        volumes:
+            - ./requirements/volumes/wordpress:/var/www/html
+        networks:
+            - inception
 
+    mariadb:
+        build: requirements/mariadb/.
+        container_name: mariadb
+        env_file:
+            - ./.env
+        environment:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        volumes:
+        - ./requirements/volumes/mariadb:/var/lib/mysql
+        networks:
+        - inception
 
-
-# services:
-#     nginx:
-#         build: requirements/nginx/.
-#         container_name: nginx
-#         ports:
-#             - "8080:80"
-#         depends_on:
-#             - wordpress
-#         networks:
-#             - inception_network
-#     wordpress:
-#         build: requirements/wordpress/.
-#         container_name: wordpress
-#         ports:
-#             - "8000:80" # Add this if WordPress requires a port mapping
-#         volumes:
-#             - ./srcs:/var/www/html
-#         environment:    # Add required WordPress environment variables
-#             WORDPRESS_DB_HOST: mariadb:3306
-#             WORDPRESS_DB_USER: wordpress_user
-#             WORDPRESS_DB_PASSWORD: wordpress_password
-#             WORDPRESS_DB_NAME: wordpress
-#         depends_on:
-#             - mariadb
-#         networks:
-#             - inception_network
-#     mariadb:
-#         build: requirements/mariadb/.
-#         container_name: mariadb
-#         environment:
-#             MYSQL_ROOT_PASSWORD: root_password
-#             MYSQL_DATABASE: wordpress
-#             MYSQL_USER: wordpress_user
-#             MYSQL_PASSWORD: wordpress_password
-#         volumes:
-#             - db_data:/var/lib/mysql
-#         networks:
-#             - inception_network
-
-# volumes:
-#     db_data:
-
-# networks:
-#     inception_network:
+networks:
+    inception:
+        driver: bridge
