@@ -19,3 +19,23 @@ MariaDB is an open source database to help store and organize data. It's similar
 ## WordPress
 
 WordPress is a tool for building websites without coding. Its ease of use and flexibility have made it the leading website creation tool worldwide. In fact, it powers nearly half of the web content.
+
+### Building a test NGINX
+
+docker build -t <new_image_name> .
+
+### Check images
+
+docker images
+
+### Build and deploy container
+
+docker run -d --name <name-container> -p 8080:80 <new_image_name>
+
+### Check if build was successful
+
+docker ps -a
+
+### View webpage
+
+localhost:8080
