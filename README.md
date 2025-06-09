@@ -19,3 +19,19 @@ MariaDB is an open source database to help store and organize data. It's similar
 ## WordPress
 
 WordPress is a tool for building websites without coding. Its ease of use and flexibility have made it the leading website creation tool worldwide. In fact, it powers nearly half of the web content.
+
+## Using Inception
+
+Starting an accessing this project is pretty simple. However it does require that you have ```docker``` installed.
+
+```bash
+make
+```
+
+This will call the command
+
+```bash
+docker compose -f ./srcs/docker-compose.yml up -d
+```
+
+This automaticall starts all three docker containers

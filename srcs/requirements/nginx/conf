@@ -1,28 +1,44 @@
 server {
+    # Listen on port 443 for HTTPS traffic (IPv4 and IPv6)
     listen 443 ssl;
     listen [::]:443 ssl;
     
+    # Domain name
     server_name mgeiger-.42.fr;
     
-    # SSL configuration
+    # SSL/TLS configuration allowing TLSv1.2 and TLSv1.3
     ssl_protocols TLSv1.2 TLSv1.3;
+
+    # Path to SSL certificate files generated during container build
     ssl_certificate /etc/nginx/ssl/nginx.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
     
+    # Document root - shared volume with WordPress container
     root /var/www/html;
+    # Default index files
     index index.php index.html index.htm;
     
+    # Main location block
     location / {
+        # Try to serve the requested file, then directory, then fallback to WordPress
         try_files $uri $uri/ /index.php?$args;
     }
     
+    # PHP processing block for handling all .php files
     location ~ \.php$ {
+        # Security: return 404 if PHP file doesn't exist (prevents code injection)
         try_files $uri =404;
+        # Split the URI to separate script name from path info
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        # Forward PHP requests to WordPress container on port 9000 (PHP-FPM)
         fastcgi_pass wordpress:9000;
+        # Default index file for PHP
         fastcgi_index index.php;
+        # Include standard FastCGI parameters
         include fastcgi_params;
+        # Set the script filename for PHP processing
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        # Set path info for PHP applications that need it
         fastcgi_param PATH_INFO $fastcgi_path_info;
     }
 }

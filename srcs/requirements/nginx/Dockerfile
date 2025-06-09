@@ -11,7 +11,7 @@ RUN mkdir -p /etc/nginx/ssl && \
     -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt \
     -subj "/C=FR/ST=Paris/L=Paris/O=42/OU=42/CN=mgeiger-.42.fr"
 
-# Copy configuration
+# Copy configuration from directory to Nginx
 COPY conf /etc/nginx/sites-available/default
 
 # Expose port for HTTPS
