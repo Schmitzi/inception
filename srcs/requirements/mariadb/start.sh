@@ -1,6 +1,19 @@
 #!/bin/bash
 set -e
 
+DB_USER=$(cat /run/secrets/db_user)
+DB_PASSWORD=$(cat /run/secrets/db_password)
+DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+
+# Create initialization script dynamically
+cat > /docker-entrypoint-initdb.d.sql << EOF
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${DB_USER}'@'%';
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
+FLUSH PRIVILEGES;
+EOF
+
 # Create needed directories with proper permissions
 mkdir -p /var/lib/mysql /var/run/mysqld
 chown -R mysql:mysql /var/lib/mysql /var/run/mysqld

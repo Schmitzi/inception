@@ -28,7 +28,7 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - WORDPRESS_DB_USER_FILE=/run/secrets/wordpress_user
       - WORDPRESS_DB_PASSWORD_FILE=/run/secrets/wordpress_password
-    volumes: # Volume required by subject for Wordpress website files
+    volumes:
       - ./requirements/volumes/wordpress:/var/www/html
     networks:
       - inception
@@ -46,7 +46,7 @@ services:
       - MYSQL_USER_FILE=/run/secrets/db_user
       - MYSQL_PASSWORD_FILE=/run/secrets/db_password
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
-    volumes: # Volume required by subject for Wordpress database
+    volumes:
       - ./requirements/volumes/mariadb:/var/lib/mysql
     networks:
       - inception

@@ -7,7 +7,7 @@ server {
     server_name mgeiger-.42.fr;
     
     # SSL/TLS configuration allowing TLSv1.2 and TLSv1.3
-    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_protocols TLSv1.3; # TLSv1.2
 
     # Path to SSL certificate files generated during container build
     ssl_certificate /etc/nginx/ssl/nginx.crt;
