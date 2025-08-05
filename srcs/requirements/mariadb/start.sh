@@ -7,10 +7,10 @@ DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 
 # Create initialization script dynamically
 cat > /docker-entrypoint-initdb.d.sql << EOF
-CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+CREATE DATABASE IF NOT EXISTS mariadb;
 CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${DB_USER}'@'%';
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
+GRANT ALL PRIVILEGES ON mariadb.* TO '${DB_USER}'@'%';
+ALTER USER 'admin'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
 EOF
 
