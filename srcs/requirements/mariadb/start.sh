@@ -1,51 +1,59 @@
 #!/bin/bash
 set -e
 
+echo "Starting MariaDB setup..."
+
+# Read secrets
 DB_USER=$(cat /run/secrets/db_user)
 DB_PASSWORD=$(cat /run/secrets/db_password)
 DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 
-# Create initialization script dynamically
-cat > /docker-entrypoint-initdb.d.sql << EOF
-CREATE DATABASE IF NOT EXISTS mariadb;
-CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON mariadb.* TO '${DB_USER}'@'%';
-ALTER USER 'admin'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
-FLUSH PRIVILEGES;
-EOF
+echo "Database user: $DB_USER"
 
 # Create needed directories with proper permissions
 mkdir -p /var/lib/mysql /var/run/mysqld
 chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
-chmod 777 /var/run/mysqld
+chmod 755 /var/run/mysqld
 
-# Initialize database if needed
+# Check if database is already initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Initializing MariaDB database..."
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql
+    echo "Database not initialized. Initializing..."
+    mysql_install_db --user=mysql --datadir=/var/lib/mysql --rpm
+    
+    # Start MariaDB temporarily to set it up
+    echo "Starting MariaDB for initial setup..."
+    mysqld_safe --user=mysql --skip-networking &
+    MYSQL_PID=$!
+    
+    # Wait for MySQL to start
+    echo "Waiting for MariaDB to be ready..."
+    for i in {1..30}; do
+        if mysqladmin ping --silent; then
+            echo "MariaDB is ready!"
+            break
+        fi
+        echo "Waiting... ($i/30)"
+        sleep 2
+    done
+    
+    # Setup database and users
+    echo "Setting up database and users..."
+    mysql -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${DB_ROOT_PASSWORD}');"
+    mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS wordpress;"
+    mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';"
+    mysql -u root -p${DB_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON wordpress.* TO '${DB_USER}'@'%';"
+    mysql -u root -p${DB_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
+    
+    # Stop the temporary instance
+    echo "Stopping temporary MariaDB..."
+    mysqladmin -u root -p${DB_ROOT_PASSWORD} shutdown
+    wait $MYSQL_PID
+    
+    echo "Database initialization complete!"
+else
+    echo "Database already initialized."
 fi
 
-# Start MySQL in background
-echo "Starting MariaDB temporarily..."
-mysqld_safe --user=mysql &
-MYSQL_PID=$!
-
-# Wait for MySQL to become available
-echo "Waiting for MariaDB to be ready..."
-until mysqladmin ping -h"localhost" --silent; do
-    sleep 1
-done
-
-echo "MariaDB is ready, initializing database..."
-
-# Initialize database
-mysql < /docker-entrypoint-initdb.d.sql
-
-# Stop the background MariaDB
-echo "Stopping temporary MariaDB instance..."
-mysqladmin -u root shutdown
-wait $MYSQL_PID
-
 # Start MariaDB in foreground
-echo "Starting MariaDB in foreground..."
+echo "Starting MariaDB in foreground mode..."
 exec mysqld_safe --user=mysql

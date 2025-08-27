@@ -13,7 +13,7 @@ services:
     networks:
       - inception
     volumes:
-      - ./requirements/volumes/wordpress:/var/www/html
+      - wordpress_data:/var/www/html
 
   wordpress:
     build: ./requirements/wordpress/.
@@ -29,7 +29,7 @@ services:
       - WORDPRESS_DB_USER_FILE=/run/secrets/wordpress_user
       - WORDPRESS_DB_PASSWORD_FILE=/run/secrets/wordpress_password
     volumes:
-      - ./requirements/volumes/wordpress:/var/www/html
+      - wordpress_data:/var/www/html
     networks:
       - inception
     secrets:
@@ -47,13 +47,27 @@ services:
       - MYSQL_PASSWORD_FILE=/run/secrets/db_password
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
     volumes:
-      - ./requirements/volumes/mariadb:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
     networks:
       - inception
     secrets:
       - db_user
       - db_password
       - db_root_password
+
+volumes:
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mgeiger-/data/wordpress
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mgeiger-/data/mariadb
 
 secrets:
   wordpress_user:
