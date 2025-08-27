@@ -7,7 +7,7 @@ mkdir -p /run/php
 mkdir -p /var/run/php
 
 echo "WordPress DB Config:"
-echo "Host: $WORDPRESS_DB_HOST"
+echo "Host: $WORDPRESS_DB_HOST"docke
 echo "Database: $WORDPRESS_DB_NAME" 
 echo "User: $WORDPRESS_DB_USER"
 
@@ -24,7 +24,7 @@ fi
 # Wait for database to be ready
 echo "Waiting for database connection..."
 for i in {1..30}; do
-    if mysql -h ${WORDPRESS_DB_HOST%:*} -P ${WORDPRESS_DB_HOST#*:} -u ${WORDPRESS_DB_USER} -p${WORDPRESS_DB_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; then
+    if mysql -h ${WORDPRESS_DB_HOST} -P ${WORDPRESS_DB_PORT} -u ${WORDPRESS_DB_USER} -p${WORDPRESS_DB_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; then
         echo "Database connection successful!"
         break
     fi

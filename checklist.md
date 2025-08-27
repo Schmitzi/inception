@@ -1,149 +1,77 @@
-# Inception Project Checklist
+# Inception
 
-## Project Structure Requirements
-- [x] Project completed on a Virtual Machine
-- [x] All configuration files in `srcs` folder
-- [x] Makefile at root directory
-- [x] Makefile builds Docker images using docker-compose.yml
-- [ ] Directory structure matches requirements:
-  ```
-  .
-  ├── Makefile
-  ├── secrets/
-  │   ├── db_password.txt
-  │   ├── db_root_password.txt
-  │   ├── wordpress_user.txt
-  │   └── wordpress_password.txt
-  └── srcs/
-      ├── docker-compose.yml
-      ├── .env
-      └── requirements/
-          ├── mariadb/
-          │   ├── Dockerfile
-          │   ├── conf/
-          │   └── tools/
-          ├── nginx/
-          │   ├── Dockerfile
-          │   ├── conf/
-          │   └── tools/
-          └── wordpress/
-              ├── Dockerfile
-              ├── conf/
-              └── tools/
-  ```
+## Beware
 
-## Docker Compose & Environment
-- [x] Docker Compose file created
-- [x] .env file with environment variables
-- [x] Secrets files created and referenced
-- [x] Docker network established (inception)
-- [ ] Volumes configured:
-  - [x] WordPress database volume
-  - [x] WordPress website files volume
-- [ ] Volumes available in `/home/login/data` on host
+- For the entire evaluation process, if you don't know how to check a requirement, or verify anything, the evaluated student has to help you.
+- Ensure that all the files required to configure the application are located inside a srcs folder. The srcs folder must be located at the root of the repository.
+- Ensure that a Makefile is located at the root of the repository.
+- Before starting the evaluation, run this command in the terminal: "docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null"
+- Read the docker-compose.yml file. There musn't be 'network: host' in it or 'links:'. Otherwise, the evaluation ends now.
+- Read the docker-compose.yml file. There must be 'network(s)' in it. Otherwise, the evaluation ends now.
+- Examine the Makefile and all the scripts in which Docker is used. There musn't be '--link' in any of them. Otherwise, the evaluation ends now.
+- Examine the Dockerfiles. If you see 'tail -f' or any command run in background in any of them in the ENTRYPOINT section, the evaluation ends now. Same thing if 'bash' or 'sh' are used but not for running a script (e.g, 'nginx & bash' or 'bash').
+- If the entrypoint is a script (e.g., ENTRYPOINT ["sh", "my_entrypoint.sh"], ENTRYPOINT ["bash", "my_entrypoint.sh"]), ensure it runs no program
+in background (e.g, 'nginx & bash').
+- Examine all the scripts in the repository. Ensure none of them runs an infinite loop. The following are a few examples of prohibited commands: 'sleep infinity', 'tail -f /dev/null', 'tail -f /dev/random'
+- Run the Makefile.
 
-## Container Requirements
+## Mandatory part
 
-### NGINX Container
-- [x] Dockerfile written from Debian/Alpine
-- [x] TLS 1.2 or 1.3 only configuration
-- [x] SSL certificate generated (self-signed)
-- [x] Listens on port 443 only
-- [x] Acts as sole entry point
-- [x] Properly configured to serve WordPress
-- [x] No nginx in other containers
+This project consists in setting up a small infrastructure composed of different services using docker compose. Ensure that all the following points are correct.
+Project overview
 
-### WordPress Container  
-- [x] Dockerfile written from Debian/Alpine
-- [x] PHP-FPM installed and configured
-- [x] No nginx installed
-- [x] WordPress properly configured
-- [ ] Database connection working
-- [x] Website accessible through nginx
-- [ ] Two users in WordPress database:
-  - [ ] Administrator (username NOT admin/Admin/administrator/Administrator)
-  - [ ] Regular user
+- The evaluated person has to explain to you in simple terms:
+    - How Docker and docker compose work
+    - The difference between a Docker image used with docker compose and without docker compose
+    - The benefit of Docker compared to VMs
+    - The pertinence of the directory structure required for this project (an example is provided in the subject's PDF file).
 
-### MariaDB Container
-- [x] Dockerfile written from Debian/Alpine
-- [x] No nginx installed
-- [ ] Database properly initialized
-- [x] WordPress database created
-- [ ] Users created with correct permissions
-- [ ] Accessible from WordPress container
+## Simple setup
 
-## Security & Best Practices
-- [x] No passwords in Dockerfiles
-- [x] Environment variables used
-- [x] Docker secrets implemented
-- [x] No ready-made images pulled (except base OS)
-- [ ] No latest tag used
-- [ ] No infinite loop commands (tail -f, sleep infinity, etc.)
-- [ ] Containers restart automatically on crash
-- [ ] Credentials not stored in Git repository
+- Ensure that NGINX can be accessed by port 443 only. Once done, open the page.
+- Ensure that a SSL/TLS certificate is used.
+- Ensure that the WordPress website is properly installed and configured (you shouldn't see the WordPress Installation page). To access it, open https://login.42.fr in your browser, where login is the login of the evaluated student. You shouldn't be able to access the site via
+http://login.42.fr. If something doesn't work as expected, the evaluation process ends now.
 
-## Domain & Network Configuration
-- [x] Domain configured: `mgeiger-.42.fr`
-- [x] Domain points to local IP in /etc/hosts
-- [x] Network line present in docker-compose.yml
-- [ ] No forbidden network options (host, --link, links)
+## Docker Basics
 
-## Functionality Tests
-- [x] `make up` builds and starts all containers
-- [x] `make down` stops all containers  
-- [x] All containers show "Up" status
-- [x] Website accessible via https://mgeiger-.42.fr
-- [ ] SSL certificate warning can be bypassed
-- [x] WordPress installation completes
-- [x] WordPress admin panel accessible
-- [ ] Database connection working
-- [ ] File persistence (volumes working)
-- [ ] Containers restart after crash
+- Start by checking the Dockerfiles. There must be one Dockerfile per service. Ensure that the Dockerfiles are not empty files. If it's not the case or if a Dockerfile is missing, the evaluation process ends now.
+- Make sure the evaluated student has written their own Dockerfiles and built their own Docker images. Indeed, it is forbidden to use ready-made ones or to use services such as DockerHub.
+- Ensure that every container is built from the penultimate stable version of Alpine/Debian. If a Dockerfile does not start with 'FROM alpine:X.X.X' or 'FROM debian:XXXXX', or any other local image, the evaluation process ends now.
+- The Docker images must have the same name as their corresponding service. Otherwise, the evaluation process ends now.
+- Ensure that the Makefile has set up all the services via docker compose. This means that the containers must have been built using docker compose and that no crash happened. Otherwise, the evaluation process ends.
 
-## File Verification
-- [x] Custom Dockerfiles for each service
-- [x] Startup scripts separated from Dockerfiles
-- [ ] Configuration files properly structured
-- [ ] No hardcoded credentials
-- [ ] Proper file permissions
+## Docker Network
 
-## Current Status Assessment
-✅ **Completed:**
-- Basic container structure
-- Docker Compose setup
-- SSL certificate generation
-- Environment variables and secrets
-- Startup scripts created
+- Ensure that docker-network is used by checking the docker-compose.yml file. Then run the 'docker network ls' command to verify that a network is visible.
+- The evaluated student has to give you a simple explanation of docker-network. If any of the above points is not correct, the evaluation process ends now.
 
-⚠️ **In Progress:**
-- Database connection issues (needs manual setup)
-- WordPress configuration
+## NGINX with SSL/TLS
 
-❌ **Remaining:**
-- WordPress admin user creation (non-admin username)
-- Volume persistence verification
-- Complete functionality testing
-- Domain configuration verification
+- Ensure that there is a Dockerfile.
+- Using the 'docker compose ps' command, ensure that the container was created (using the flag '-p' is authorized if necessary).
+- Try to access the service via http (port 80) and verify that you cannot connect.
+- Open https://login.42.fr/ in your browser, where login is the login of the evaluated student. The displayed page must be the configured WordPress website (you shouldn't see the WordPress Installation page).
+- The use of a TLS v1.2/v1.3 certificate is mandatory and must be demonstrated. The SSL/TLS certificate doesn't have to be recognized. A self-signed certificate warning may appear. If any of the above points is not clearly explained and correct, the evaluation process ends now.
 
-## Next Steps Priority
-1. Fix MariaDB database creation (add COPY command to Dockerfile)
-2. Complete WordPress database setup
-3. Create WordPress admin user with compliant username
-4. Test volume persistence
-5. Verify all containers restart automatically
-6. Final functionality testing
+## WordPress with php-fpm and its volume
 
-## Bonus Parts (Optional)
-- [ ] Redis cache for WordPress
-- [ ] FTP server container
-- [ ] Static website (non-PHP)
-- [ ] Adminer setup
-- [ ] Additional useful service
+- Ensure that there is a Dockerfile.
+- Ensure that there is no NGINX in the Dockerfile.
+- Using the 'docker compose ps' command, ensure that the container was created (using the flag '-p' is authorized if necessary).
+- Ensure that there is a Volume. To do so: Run the command 'docker volume ls' then 'docker volume inspect <volume name>'. Verify that the result in the standard output contains the path '/home/login/data/', where login is the login of the evaluated student.
+- Ensure that you can add a comment using the available WordPress user.
+- Sign in with the administrator account to access the Administration dashboard. The Admin username must not include 'admin' or 'Admin' (e.g., admin, administrator, Admin-login, admin-123, and so forth).
+- From the Administration dashboard, edit a page. Verify on the website that the page has been updated. If any of the above points is not correct, the evaluation process ends now.
 
-## Final Validation
-- [ ] All mandatory requirements working perfectly
-- [ ] No errors in container logs
-- [ ] Website fully functional
-- [ ] Volumes persist data across restarts
-- [ ] Security requirements met
-- [ ] Ready for submission
+## MariaDB and its volume
+
+- Ensure that there is a Dockerfile.
+- Ensure that there is no NGINX in the Dockerfile.
+- Using the 'docker compose ps' command, ensure that the container was created (using the flag '-p' is authorized if necessary).
+- Ensure that there is a Volume. To do so: Run the command 'docker volume ls' then 'docker volume inspect <volume name>'. Verify that the result in the standard output contains the path '/home/login/data/', where login is the login of the evaluated student.
+- The evaluated student must be able to explain you how to login into the database. Verify that the database is- not empty. If any of the above points is not correct, the evaluation process ends now.
+
+### Persistence!
+
+  This part is pretty straightforward. You have to reboot the virtual machine. Once it has restarted, launch docker compose again. Then, verify that everything is functional, and that both WordPress and MariaDB are configured. The changes you made previously to the WordPress website should still be here. If any of the above points is not correct, the evaluation process ends now.

@@ -1,6 +1,6 @@
 FROM debian:bullseye
 
-# Install required packages, NO NGINX ALLOWED HERE!
+# Install required packages
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
@@ -13,6 +13,7 @@ RUN apt-get update && \
     php7.4-xml \
     php7.4-zip \
     wget \
+    mariadb-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Create all necessary directories
