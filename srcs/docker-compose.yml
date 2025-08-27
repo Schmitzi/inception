@@ -14,6 +14,7 @@ services:
       - inception
     volumes:
       - wordpress_data:/var/www/html
+    restart: unless-stopped
 
   wordpress:
     build: ./requirements/wordpress/.
@@ -25,16 +26,14 @@ services:
     environment:
       - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
       - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
+      - WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
+      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
       - DOMAIN_NAME=${DOMAIN_NAME}
-      - WORDPRESS_DB_USER_FILE=/run/secrets/wordpress_user
-      - WORDPRESS_DB_PASSWORD_FILE=/run/secrets/wordpress_password
     volumes:
       - wordpress_data:/var/www/html
     networks:
       - inception
-    secrets:
-      - wordpress_user
-      - wordpress_password
+    restart: unless-stopped
 
   mariadb:
     build: ./requirements/mariadb/.
@@ -43,17 +42,14 @@ services:
       - ./.env
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER_FILE=/run/secrets/db_user
-      - MYSQL_PASSWORD_FILE=/run/secrets/db_password
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
       - inception
-    secrets:
-      - db_user
-      - db_password
-      - db_root_password
+    restart: unless-stopped
 
 volumes:
   wordpress_data:
@@ -61,25 +57,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/mgeiger-/data/wordpress
+      device: /home/inception/data/wordpress
   mariadb_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mgeiger-/data/mariadb
-
-secrets:
-  wordpress_user:
-    file: ../secrets/wordpress_user.txt
-  wordpress_password:
-    file: ../secrets/wordpress_password.txt
-  db_user:
-    file: ../secrets/db_user.txt
-  db_password:
-    file: ../secrets/db_password.txt
-  db_root_password:
-    file: ../secrets/db_root_password.txt
+      device: /home/inception/data/mariadb
 
 networks:
   inception:

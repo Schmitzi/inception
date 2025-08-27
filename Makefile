@@ -10,37 +10,48 @@
 #                                                                              #
 # **************************************************************************** #
 
-all : up
+# Create necessary directories
+setup:
+	@sudo mkdir -p /home/inception/data/wordpress
+	@sudo mkdir -p /home/inception/data/mariadb
+	@sudo chown -R inception:inception /home/inception/data
 
-up : 
+all: setup up
+
+up: 
 	@docker compose -f ./srcs/docker-compose.yml up -d
 
-down : 
+down: 
 	@docker compose -f ./srcs/docker-compose.yml down
 
-stop : 
+stop: 
 	@docker compose -f ./srcs/docker-compose.yml stop
 
-start : 
+start: 
 	@docker compose -f ./srcs/docker-compose.yml start
 
-restart : down up
+restart: down up
 
-clean : down
+clean: down
 	@docker compose -f ./srcs/docker-compose.yml down -v
 	@docker system prune -f
 
-rebuild : clean
+rebuild: clean setup
 	@docker compose -f ./srcs/docker-compose.yml build --no-cache
 	@docker compose -f ./srcs/docker-compose.yml up -d
 
-status : 
+status: 
 	@docker ps
 
-logs :
+logs:
 	@docker compose -f ./srcs/docker-compose.yml logs
 
-logs-f :
+logs-f:
 	@docker compose -f ./srcs/docker-compose.yml logs -f
 
-.PHONY: all up down stop start restart clean rebuild status logs
+volumes:
+	@docker volume ls
+	@echo "Volume inspection:"
+	@docker volume inspect $$(docker volume ls -q | grep -E "(wordpress|mariadb)")
+
+.PHONY: all setup up down stop start restart clean rebuild status logs logs-f volumes

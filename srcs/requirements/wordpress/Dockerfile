@@ -1,8 +1,5 @@
 FROM debian:bullseye
 
-# RUN --mount=type=secret.id=ACCESS_TOKEN \
-        # echo "./private-install-script --access-token $(cat /run/secrets/ACCESS_TOKEN)" 
-
 # Install required packages, NO NGINX ALLOWED HERE!
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
