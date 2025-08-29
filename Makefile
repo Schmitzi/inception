@@ -10,13 +10,12 @@
 #                                                                              #
 # **************************************************************************** #
 
-# Create necessary directories
-setup:
-	@sudo mkdir -p /home/inception/data/wordpress
-	@sudo mkdir -p /home/inception/data/mariadb
-	@sudo chown -R inception:inception /home/inception/data
-
 all: setup up
+
+setup:
+	@sudo mkdir -p /home/$(USER)/data/wordpress
+	@sudo mkdir -p /home/$(USER)/data/mariadb
+	@sudo chown -R $(USER):$(USER) /home/$(USER)/data
 
 up: 
 	@docker compose -f ./srcs/docker-compose.yml up -d
