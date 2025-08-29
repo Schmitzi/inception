@@ -34,4 +34,8 @@ This will call the command
 docker compose -f ./srcs/docker-compose.yml up -d
 ```
 
-This automaticall starts all three docker containers
+This automatically starts all three docker containers
+
+You can then access the website through ```mgeiger-.42.fr```
+
+Have fun!
